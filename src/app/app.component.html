@@ -1,12 +1,3 @@
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * The content below * * * * * * * * * * * -->
-<!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * -->
-<!-- * * * * * * * * * * and can be replaced.  * * * * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * Delete the template below * * * * * * * * * -->
-<!-- * * * * * * to get started with your project! * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-
 <style>
   body, html {
     background-color: linear-gradient(135deg, #2d185a 0%, #1a1a2e 100%) !important;
@@ -287,12 +278,16 @@
   <button
     *ngIf="contas?.length"
     (click)="obterDetalhesSelecionados()"
-    [disabled]="!hasContaSelecionada()"
+    [disabled]="!hasContaSelecionada() || loadingDetalhes"
     style="margin-top: 1.5rem; padding: 0.5rem 1.5rem; font-size: 1rem; cursor: pointer;"
-    [ngStyle]="!hasContaSelecionada() ? {'cursor': 'not-allowed', 'background': '#7c3aed80'} : {}"
-    [class.disabled-btn]="!hasContaSelecionada()"
+    [ngStyle]="!hasContaSelecionada() || loadingDetalhes ? {'cursor': 'not-allowed', 'background': '#7c3aed80'} : {}"
+    [class.disabled-btn]="!hasContaSelecionada() || loadingDetalhes"
   >
-    Obter detalhes
+    <span *ngIf="loadingDetalhes" style="display: inline-flex; align-items: center;">
+      <span class="spinner"></span>
+      Carregando...
+    </span>
+    <span *ngIf="!loadingDetalhes">Obter detalhes</span>
   </button>
   <style>
     button:disabled,
@@ -305,17 +300,23 @@
     .disabled-btn:hover {
       background: #7c3aed80 !important;
     }
+    .spinner {
+      display: inline-block;
+      width: 1.2em;
+      height: 1.2em;
+      border: 2px solid #fff;
+      border-top: 2px solid #7c3aed;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-right: 0.5em;
+      vertical-align: middle;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
   </style>
   <div id="belvo"></div>
 </main>
-
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * The content above * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * * -->
-<!-- * * * * * * * * * * and can be replaced.  * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * End of Placeholder  * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 
 
 <router-outlet />

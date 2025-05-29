@@ -24,6 +24,7 @@ export class AppComponent implements OnInit {
   password = '';
   registerUsername = '';
   registerPassword = '';
+  loadingDetalhes = false;
 
   constructor(private http: HttpClient) { }
 
@@ -69,7 +70,6 @@ export class AppComponent implements OnInit {
       next: (res) => {
         localStorage.setItem('access_token', res.access_token);
         localStorage.setItem('external_id', res.guid);
-
         this.checkAuthentication();
       },
       error: (err) => {
@@ -155,9 +155,23 @@ export class AppComponent implements OnInit {
 
 
   obterDetalhesSelecionados() {
+    this.loadingDetalhes = true;
     const selecionadas = this.contas.filter(c => c.selecionada);
-    // Faça o que desejar com as contas selecionadas
-    console.log('Contas selecionadas:', selecionadas);
+    const links = selecionadas.map(c => c.link_id);
+    const params = links.map(link => `link_list=${encodeURIComponent(link)}`).join('&');
+    const url = `${env.apiUrl}/accounts/links-details?${params}`;
+    this.http.get<any>(url)
+      .subscribe({
+      next: (detalhes) => {
+        console.log('Detalhes dos links:', detalhes);
+        // Aqui você pode tratar os detalhes recebidos conforme necessário
+        this.loadingDetalhes = false;
+      },
+      error: (err) => {
+        console.error('Erro ao obter detalhes dos links:', err);
+        this.loadingDetalhes = false;
+      }
+      });
   }
 
   hasContaSelecionada(): boolean {
