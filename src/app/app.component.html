@@ -8,7 +8,25 @@
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 
 <style>
+  body, html {
+    background-color: linear-gradient(135deg, #2d185a 0%, #1a1a2e 100%) !important;
+    color: #1a1a2e !important;
+    margin: 0;
+    height: 100vh;
+  }
+
   :host {
+    /* Paleta inspirada na imagem: roxo escuro, azul, violeta, preto */
+    --main-bg: linear-gradient(135deg, #2d185a 0%, #1a1a2e 100%);
+    --header-bg: #1a1a2e;
+    --table-bg: #23213a;
+    --table-border: #7c3aed;
+    --table-header-bg: #2d185a;
+    --button-bg: #7c3aed;
+    --button-hover: #a78bfa;
+    --font-main: #fff;
+    --font-secondary: #c7d2fe;
+
     --bright-blue: oklch(51.01% 0.274 263.83);
     --electric-violet: oklch(53.18% 0.28 296.97);
     --french-violet: oklch(47.66% 0.246 305.88);
@@ -58,7 +76,7 @@
   }
 
   main {
-    width: 100%;
+    margin: 0;
     min-height: 100%;
     display: flex;
     justify-content: center;
@@ -66,6 +84,8 @@
     padding: 1rem;
     box-sizing: inherit;
     position: relative;
+    background: transparent !important;
+    color: var(--font-main) !important;
   }
 
   .angular-logo {
@@ -173,40 +193,124 @@
       margin-block: 1.5rem;
     }
   }
+
+  header {
+    background: var(--header-bg) !important;
+    border-bottom: 2px solid var(--table-border) !important;
+  }
+
+  h1, h2, th, td, p, button {
+    color: var(--font-main) !important;
+  }
+
+  h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--font-secondary) !important;
+    margin-bottom: 1rem;
+  }
+
+  table {
+    border: 2px solid var(--table-border) !important;
+    background: var(--table-bg) !important;
+    color: var(--font-main) !important;
+    box-shadow: 0 2px 16px #0006;
+  }
+
+  thead tr {
+    background: var(--table-header-bg) !important;
+  }
+
+  th, td {
+    border-bottom: 1px solid var(--table-border) !important;
+  }
+
+  button {
+    background: var(--button-bg) !important;
+    color: var(--font-main) !important;
+    border-radius: 6px;
+    border: none;
+    transition: background 0.2s;
+  }
+  button:hover {
+    background: var(--button-hover) !important;
+  }
 </style>
 
-<header
-  style="display: flex; justify-content: flex-end; align-items: center; padding: 1rem; background: #f5f5f5; border-bottom: 1px solid #e0e0e0;">
-  <button (click)="initializeBelvoWidget()"
-    style="padding: 0.5rem 1.5rem; font-size: 1rem; background: #7702FF; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Conectar
-    conta</button>
+<header style="display: flex; justify-content: flex-end; align-items: center; padding: 1rem;">
+  <button *ngIf="isAuthenticated" (click)="logout()"
+    style="padding: 0.5rem 1.5rem; font-size: 1rem; margin-right: 1rem; cursor: pointer; background: #23213a; border: 1px solid #7c3aed;">Sair</button>
+  <button *ngIf="isAuthenticated" (click)="initializeBelvoWidget()"
+    style="padding: 0.5rem 1.5rem; font-size: 1rem; cursor: pointer;">Conectar conta</button>
 </header>
-<main style="padding: 2rem; display: flex; flex-direction: column; align-items: center;">
-  <h2>Contas Bancárias</h2>
-  <table
-    style="width: 100%; max-width: 700px; border-collapse: collapse; margin-top: 1.5rem; background: #fff; box-shadow: 0 2px 8px #0001;">
+
+<div *ngIf="showLogin" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh;">
+  <h2>Login</h2>
+  <form (ngSubmit)="login()" style="display: flex; flex-direction: column; gap: 1rem; min-width: 300px;">
+    <input [(ngModel)]="username" name="username" placeholder="Usuário" required style="padding: 0.5rem; border-radius: 4px; border: 1px solid #7c3aed; background: #23213a; color: #fff;" />
+    <input [(ngModel)]="password" name="password" type="password" placeholder="Senha" required style="padding: 0.5rem; border-radius: 4px; border: 1px solid #7c3aed; background: #23213a; color: #fff;" />
+    <button type="submit" style="background: var(--button-bg); color: #fff;">Entrar</button>
+    <span *ngIf="loginError" style="color: #ff6b6b;">{{loginError}}</span>
+    <a href="#" (click)="$event.preventDefault(); showLogin=false; showRegister=true;" style="color: #a78bfa; text-align: center;">Criar conta</a>
+  </form>
+</div>
+
+<div *ngIf="showRegister" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh;">
+  <h2>Cadastro</h2>
+  <form (ngSubmit)="register()" style="display: flex; flex-direction: column; gap: 1rem; min-width: 300px;">
+    <input [(ngModel)]="registerUsername" name="registerUsername" placeholder="Usuário" required style="padding: 0.5rem; border-radius: 4px; border: 1px solid #7c3aed; background: #23213a; color: #fff;" />
+    <input [(ngModel)]="registerPassword" name="registerPassword" type="password" placeholder="Senha" required style="padding: 0.5rem; border-radius: 4px; border: 1px solid #7c3aed; background: #23213a; color: #fff;" />
+    <button type="submit" style="background: var(--button-bg); color: #fff;">Registrar</button>
+    <span *ngIf="registerError" style="color: #ff6b6b;">{{registerError}}</span>
+    <a href="#" (click)="$event.preventDefault(); showRegister=false; showLogin=true;" style="color: #a78bfa; text-align: center;">Já tenho conta</a>
+  </form>
+</div>
+
+<main *ngIf="isAuthenticated" style="padding: 2rem; display: flex; flex-direction: column; align-items: center; background-color: #1a1a2e;">
+  <h2>Bancos cadastrados</h2>
+  <table style="width: 100%; max-width: 400px; border-collapse: collapse; margin-top: 1.5rem;">
     <thead>
-      <tr style="background: #f5f5f5;">
-        <th style="padding: 0.75rem; border-bottom: 1px solid #e0e0e0; text-align: left;">ID</th>
-        <th style="padding: 0.75rem; border-bottom: 1px solid #e0e0e0; text-align: left;">Belvo ID</th>
-        <th style="padding: 0.75rem; border-bottom: 1px solid #e0e0e0; text-align: left;">Link</th>
-        <th style="padding: 0.75rem; border-bottom: 1px solid #e0e0e0; text-align: left;">Banco</th>
+      <tr>
+        <th></th>
+        <th style="padding: 0.75rem; text-align: left;">Banco</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let conta of contas">
-        <td>{{ conta.institution_id }}</td>
-        <td>{{ conta.external_id }}</td>
-        <td>{{ conta.link_id }}</td>
+      <tr *ngFor="let conta of contas; let i = index">
+        <td>
+          <input type="checkbox" [(ngModel)]="conta.selecionada" name="selecionada{{i}}" />
+        </td>
         <td>{{ conta.institution_name }}</td>
       </tr>
     </tbody>
   </table>
+  <button
+    *ngIf="contas?.length"
+    (click)="obterDetalhesSelecionados()"
+    [disabled]="!hasContaSelecionada()"
+    style="margin-top: 1.5rem; padding: 0.5rem 1.5rem; font-size: 1rem; cursor: pointer;"
+    [ngStyle]="!hasContaSelecionada() ? {'cursor': 'not-allowed', 'background': '#7c3aed80'} : {}"
+    [class.disabled-btn]="!hasContaSelecionada()"
+  >
+    Obter detalhes
+  </button>
+  <style>
+    button:disabled,
+    .disabled-btn {
+      cursor: not-allowed !important;
+      background: #7c3aed80 !important;
+      opacity: 0.7;
+    }
+    button:disabled:hover,
+    .disabled-btn:hover {
+      background: #7c3aed80 !important;
+    }
+  </style>
   <div id="belvo"></div>
 </main>
 
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * The content above * * * * * * * * * * * * -->
+<!-- * * * * * * * * * * The content above * * * * * * * * * * * * -->
 <!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * * -->
 <!-- * * * * * * * * * * and can be replaced.  * * * * * * * * * * * -->
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->

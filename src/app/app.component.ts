@@ -1,21 +1,31 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { HttpClient }  from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { environment as env } from '../environments/environment';
+import { FormsModule } from '@angular/forms';
 
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CommonModule],
+  imports: [RouterOutlet, CommonModule, FormsModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
   title = 'angular-app';
   contas: any[] = [];
+  isAuthenticated = false;
+  showLogin = true;
+  showRegister = false;
+  loginError = '';
+  registerError = '';
+  username = '';
+  password = '';
+  registerUsername = '';
+  registerPassword = '';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   clearLocalStorage() {
     localStorage.removeItem('belvo_access_token');
@@ -24,7 +34,72 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.checkAuthentication();
     this.buscarContas();
+  }
+
+  checkAuthentication() {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      this.isAuthenticated = false;
+      this.showLogin = true;
+      return;
+    }
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const now = Math.floor(Date.now() / 1000);
+      this.isAuthenticated = payload.exp && payload.exp > now;
+      this.showLogin = !this.isAuthenticated;
+      if (!this.isAuthenticated) {
+        localStorage.removeItem('access_token');
+      }
+    } catch (e) {
+      this.isAuthenticated = false;
+      this.showLogin = true;
+      localStorage.removeItem('access_token');
+    }
+  }
+
+  login() {
+    this.loginError = '';
+    this.http.post<any>(`${env.apiUrl}/authentication/login`, {
+      email: this.username,
+      password: this.password
+    }).subscribe({
+      next: (res) => {
+        localStorage.setItem('access_token', res.access_token);
+        localStorage.setItem('external_id', res.guid);
+
+        this.checkAuthentication();
+      },
+      error: (err) => {
+        this.loginError = 'Usuário ou senha inválidos';
+      }
+    });
+  }
+
+  register() {
+    this.registerError = '';
+    this.http.post<any>(`${env.apiUrl}/users/create`, {
+      email: this.registerUsername,
+      password: this.registerPassword
+    }).subscribe({
+      next: (res) => {
+        this.showRegister = false;
+        this.showLogin = true;
+      },
+      error: (err) => {
+        this.registerError = 'Erro ao registrar usuário';
+      }
+    });
+  }
+
+  logout() {
+    localStorage.removeItem('access_token');
+    this.isAuthenticated = false;
+    this.showLogin = true;
+    this.username = '';
+    this.password = '';
   }
 
   buscarContas() {
@@ -37,14 +112,10 @@ export class AppComponent implements OnInit {
   callbackSuccess(link: string, institution: string) {
     localStorage.setItem('belvo_link', link);
     localStorage.setItem('belvo_institution', institution);
-    console.log('Link criado:', link);
-    console.log('Instituição:', institution);
     const url = `${env.apiUrl}/users/link`;
-    console.log('Enviando POST para:', url, 'com payload:', { "link": link, "institution_name": institution });
     this.http.post(url, { "link": link, "institution_name": institution })
       .subscribe({
         next: (response) => {
-          console.log('Link enviado com sucesso:', response);
           this.buscarContas();
         },
         error: (error) => {
@@ -58,11 +129,12 @@ export class AppComponent implements OnInit {
   }
 
   onExitCallbackFunction(data: any) {
-    console.log('Dados de saída:', data);
     this.clearLocalStorage();
   }
 
   initializeBelvoWidget() {
+    this.checkAuthentication();
+    if (!this.isAuthenticated) return;
     const storedToken = localStorage.getItem('belvo_access_token');
     if (storedToken) {
       this.buildBelvoWidget(storedToken);
@@ -71,7 +143,6 @@ export class AppComponent implements OnInit {
         .then(response => response.json())
         .then(data => {
           const access_token = data.access;
-          console.log(access_token)
           localStorage.setItem('belvo_access_token', access_token);
           this.buildBelvoWidget(access_token);
         })
@@ -82,23 +153,35 @@ export class AppComponent implements OnInit {
     }
   }
 
-  private buildBelvoWidget(access_token: string) {
-  const belvoSDK = (window as any).belvoSDK;
-  if (belvoSDK) {
-    try {
-      const widget = belvoSDK.createWidget(access_token, {
-        fetch_resources: ["ACCOUNTS", "TRANSACTIONS", "OWNERS"],
-        callback: (link: string, institution: string) => this.callbackSuccess(link, institution),
-        onExit: (data: any) => this.onExitCallbackFunction(data),
-      });
-      widget.build();
-    } catch (error) {
-      this.clearLocalStorage();
-      console.error('Erro ao criar ou construir o widget:', error);
-    }
-  } else {
-    this.clearLocalStorage();
-    console.error('belvoSDK não está definido');
+
+  obterDetalhesSelecionados() {
+    const selecionadas = this.contas.filter(c => c.selecionada);
+    // Faça o que desejar com as contas selecionadas
+    console.log('Contas selecionadas:', selecionadas);
   }
-}
+
+  hasContaSelecionada(): boolean {
+    return Array.isArray(this.contas) && this.contas.some(conta => conta.selecionada);
+  }
+
+  private buildBelvoWidget(access_token: string) {
+    const belvoSDK = (window as any).belvoSDK;
+    if (belvoSDK) {
+      try {
+        const widget = belvoSDK.createWidget(access_token, {
+          fetch_resources: ["ACCOUNTS", "TRANSACTIONS", "OWNERS"],
+          callback: (link: string, institution: string) => this.callbackSuccess(link, institution),
+          onExit: (data: any) => this.onExitCallbackFunction(data),
+          external_id: "external_id",
+        });
+        widget.build();
+      } catch (error) {
+        this.clearLocalStorage();
+        console.error('Erro ao criar ou construir o widget:', error);
+      }
+    } else {
+      this.clearLocalStorage();
+      console.error('belvoSDK não está definido');
+    }
+  }
 }
