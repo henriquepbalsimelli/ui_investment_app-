@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { environment as env } from '../environments/environment';
 import { FormsModule } from '@angular/forms';
+import { HeaderComponent } from './header/header.component';
 
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CommonModule, FormsModule],
+  imports: [RouterOutlet, CommonModule, FormsModule, HeaderComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
@@ -26,7 +27,7 @@ export class AppComponent implements OnInit {
   registerPassword = '';
   loadingDetalhes = false;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private router: Router) { }
 
   clearLocalStorage() {
     localStorage.removeItem('belvo_access_token');
@@ -164,8 +165,8 @@ export class AppComponent implements OnInit {
       .subscribe({
       next: (detalhes) => {
         console.log('Detalhes dos links:', detalhes);
-        // Aqui você pode tratar os detalhes recebidos conforme necessário
         this.loadingDetalhes = false;
+        this.router.navigate(['/detalhes'], { state: { detalhes } });
       },
       error: (err) => {
         console.error('Erro ao obter detalhes dos links:', err);

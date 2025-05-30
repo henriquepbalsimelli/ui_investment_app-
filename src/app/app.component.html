@@ -228,12 +228,10 @@
   }
 </style>
 
-<header style="display: flex; justify-content: flex-end; align-items: center; padding: 1rem;">
-  <button *ngIf="isAuthenticated" (click)="logout()"
-    style="padding: 0.5rem 1.5rem; font-size: 1rem; margin-right: 1rem; cursor: pointer; background: #23213a; border: 1px solid #7c3aed;">Sair</button>
-  <button *ngIf="isAuthenticated" (click)="initializeBelvoWidget()"
-    style="padding: 0.5rem 1.5rem; font-size: 1rem; cursor: pointer;">Conectar conta</button>
-</header>
+<app-header
+  [isAuthenticated]="isAuthenticated"
+>
+</app-header>
 
 <div *ngIf="showLogin" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh;">
   <h2>Login</h2>

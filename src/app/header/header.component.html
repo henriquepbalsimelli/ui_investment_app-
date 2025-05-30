@@ -1,0 +1,25 @@
+<style>
+  header {
+    background: var(--header-bg) !important;
+    border-bottom: 2px solid var(--table-border) !important;
+  }
+
+  button {
+    background: var(--button-bg) !important;
+    color: var(--font-main) !important;
+    border-radius: 6px;
+    border: none;
+    transition: background 0.2s;
+  }
+
+  button:hover {
+    background: var(--button-hover) !important;
+  }
+</style>
+
+<header style="display: flex; justify-content: flex-end; align-items: center; padding: 1rem;">
+  <button *ngIf="isAuthenticated" (click)="logoutUser()"
+    style="padding: 0.5rem 1.5rem; font-size: 1rem; margin-right: 1rem; cursor: pointer; background: #23213a; border: 1px solid #7c3aed;">Sair</button>
+  <button *ngIf="isAuthenticated" (click)="initializeBelvoWidget()"
+    style="padding: 0.5rem 1.5rem; font-size: 1rem; cursor: pointer;">Conectar conta</button>
+</header>
