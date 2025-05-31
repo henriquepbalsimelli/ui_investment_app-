@@ -1,6 +1,7 @@
-<div class ="container-center">
-<div class="flex">
-  <div *ngFor="let detalhe of detalhes; let i = index" class="mb-4 text-2xl">
+<div class="flex-container">
+
+  <div class="flex">
+    <div *ngFor="let detalhe of detalhes; let i = index" class="mb-4 text-2xl">
     <mat-expansion-panel>
       <mat-expansion-panel-header>
         <h1 class="text-2xl font-bold mb-4">{{ detalhe.institution_name }}</h1>
