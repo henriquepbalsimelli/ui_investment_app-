@@ -14,6 +14,8 @@ import { MatChipsModule } from '@angular/material/chips';
   selector: 'app-dashboard',
   templateUrl: './detalhes.component.html',
   styles: [
+    `.container-center { display: flex; justify-content: center; align-items: center; }`,
+    `.flex { display: flex;  }`,
     `.min-h-screen { min-height: 100vh; }`,
     `.p-6 { padding: 1.5rem; background: linear-gradient(135deg, #2d185a 0%, #1a1a2e 100%); min-height: 100vh; color: #fff; }`,
     `.mb-4 { margin-bottom: 1rem; }`,

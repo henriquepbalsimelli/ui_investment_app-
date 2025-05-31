@@ -1,46 +1,50 @@
-<div *ngFor="let detalhe of detalhes; let i = index" class="mb-4 text-2xl">
-  <mat-expansion-panel>
-    <mat-expansion-panel-header>
-      <h1 class="text-2xl font-bold mb-4">{{ detalhe.institution_name }}</h1>
-    </mat-expansion-panel-header>
-    <mat-tab-group>
-      <mat-tab label="Ativos">
-        <ng-container *ngFor="let acc of getActiveAccounts(detalhe)">
-          <mat-card class="mb-4">
-            <mat-card-content>
-              <h2 class="text-lg font-semibold">{{ acc.name }}</h2>
-              <p class="text-sm text-muted-foreground">
-                Categoria: {{ acc.category.replace('_', ' ') }}
-              </p>
-              <p class="text-sm mt-1">Saldo: R$ {{ acc.balance.current | number:'1.2-2' }}</p>
-              <mat-accordion *ngIf="acc.funds_data">
-                <mat-expansion-panel *ngFor="let fund of acc.funds_data">
-                  <mat-expansion-panel-header>
-                    {{ fund.name }}
-                  </mat-expansion-panel-header>
-                  <p>Saldo: R$ {{ fund.balance | number:'1.2-2' }}</p>
-                  <p>Percentual: {{ fund.percentage }}%</p>
-                </mat-expansion-panel>
-              </mat-accordion>
-            </mat-card-content>
-          </mat-card>
-        </ng-container>
-      </mat-tab>
-      <mat-tab label="Passivos">
-        <ng-container *ngFor="let acc of getPassiveAccounts(detalhe)">
-          <mat-card class="mb-4">
-            <mat-card-content>
-              <h2 class="text-lg font-semibold">{{ acc.name }}</h2>
-              <p class="text-sm text-muted-foreground">Cartão de crédito</p>
-              <p class="text-sm mt-1">Gasto atual: R$ {{ acc.balance.current | number:'1.2-2' }}</p>
-              <p class="text-sm mt-1">Limite: R$ {{ acc.credit_data.credit_limit | number:'1.2-2' }}</p>
-              <mat-chip color="primary" selected class="mt-2">
-                Próximo vencimento: {{ acc.credit_data.next_payment_date | date:'dd/MM/yyyy' }}
-              </mat-chip>
-            </mat-card-content>
-          </mat-card>
-        </ng-container>
-      </mat-tab>
-    </mat-tab-group>
-  </mat-expansion-panel>
+<div class ="container-center">
+<div class="flex">
+  <div *ngFor="let detalhe of detalhes; let i = index" class="mb-4 text-2xl">
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <h1 class="text-2xl font-bold mb-4">{{ detalhe.institution_name }}</h1>
+      </mat-expansion-panel-header>
+      <mat-tab-group>
+        <mat-tab label="Ativos">
+          <ng-container *ngFor="let acc of getActiveAccounts(detalhe)">
+            <mat-card class="mb-4">
+              <mat-card-content>
+                <h2 class="text-lg font-semibold">{{ acc.name }}</h2>
+                <p class="text-sm text-muted-foreground">
+                  Categoria: {{ acc.category.replace('_', ' ') }}
+                </p>
+                <p class="text-sm mt-1">Saldo: R$ {{ acc.balance.current | number:'1.2-2' }}</p>
+                <mat-accordion *ngIf="acc.funds_data">
+                  <mat-expansion-panel *ngFor="let fund of acc.funds_data">
+                    <mat-expansion-panel-header>
+                      {{ fund.name }}
+                    </mat-expansion-panel-header>
+                    <p>Saldo: R$ {{ fund.balance | number:'1.2-2' }}</p>
+                    <p>Percentual: {{ fund.percentage }}%</p>
+                  </mat-expansion-panel>
+                </mat-accordion>
+              </mat-card-content>
+            </mat-card>
+          </ng-container>
+        </mat-tab>
+        <mat-tab label="Passivos">
+          <ng-container *ngFor="let acc of getPassiveAccounts(detalhe)">
+            <mat-card class="mb-4">
+              <mat-card-content>
+                <h2 class="text-lg font-semibold">{{ acc.name }}</h2>
+                <p class="text-sm text-muted-foreground">Cartão de crédito</p>
+                <p class="text-sm mt-1">Gasto atual: R$ {{ acc.balance.current | number:'1.2-2' }}</p>
+                <p class="text-sm mt-1">Limite: R$ {{ acc.credit_data.credit_limit | number:'1.2-2' }}</p>
+                <mat-chip color="primary" selected class="mt-2">
+                  Próximo vencimento: {{ acc.credit_data.next_payment_date | date:'dd/MM/yyyy' }}
+                </mat-chip>
+              </mat-card-content>
+            </mat-card>
+          </ng-container>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-expansion-panel>
+  </div>
+</div>
 </div>
