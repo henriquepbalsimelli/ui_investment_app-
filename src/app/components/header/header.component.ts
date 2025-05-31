@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { RouterOutlet, Router } from '@angular/router';
-import { environment as env } from '../../environments/environment';
+import { environment as env } from '../../../environments/environment';
 import { CommonModule } from '@angular/common';
 
 @Component({

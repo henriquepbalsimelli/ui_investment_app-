@@ -4,7 +4,8 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { environment as env } from '../environments/environment';
 import { FormsModule } from '@angular/forms';
-import { HeaderComponent } from './header/header.component';
+import { HeaderComponent } from './components/header/header.component';
+import { DetalhesService } from './services/details.service';
 
 
 @Component({
@@ -26,8 +27,11 @@ export class AppComponent implements OnInit {
   registerUsername = '';
   registerPassword = '';
   loadingDetalhes = false;
+  private detalhesService: DetalhesService
 
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(private http: HttpClient, private router: Router, detalhesService: DetalhesService) {
+    this.detalhesService = detalhesService;
+  }
 
   clearLocalStorage() {
     localStorage.removeItem('belvo_access_token');
@@ -159,19 +163,27 @@ export class AppComponent implements OnInit {
     this.loadingDetalhes = true;
     const selecionadas = this.contas.filter(c => c.selecionada);
     const links = selecionadas.map(c => c.link_id);
-    const params = links.map(link => `link_list=${encodeURIComponent(link)}`).join('&');
-    const url = `${env.apiUrl}/accounts/links-details?${params}`;
+    const params = links.map(link => `${encodeURIComponent(link)}`).join(',');
+    console.log(params)
+    const url = `${env.apiUrl}/accounts/links-details?link_list=${params}`;
     this.http.get<any>(url)
       .subscribe({
-      next: (detalhes) => {
-        console.log('Detalhes dos links:', detalhes);
-        this.loadingDetalhes = false;
-        this.router.navigate(['/detalhes'], { state: { detalhes } });
-      },
-      error: (err) => {
-        console.error('Erro ao obter detalhes dos links:', err);
-        this.loadingDetalhes = false;
-      }
+        next: (detalhes) => {
+          console.log('Detalhes obtidos:', detalhes);
+          this.loadingDetalhes = false;
+          this.detalhesService.setDetalhes(detalhes);
+            if (this.router.url === '/detalhes') {
+            this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+              this.router.navigate(['/detalhes']);
+            });
+            } else {
+            this.router.navigate(['/detalhes']);
+            }
+        },
+        error: (err) => {
+          console.error('Erro ao obter detalhes dos links:', err);
+          this.loadingDetalhes = false;
+        }
       });
   }
 
